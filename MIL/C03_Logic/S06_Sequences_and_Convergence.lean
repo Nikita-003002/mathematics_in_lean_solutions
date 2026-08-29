@@ -35,7 +35,16 @@ theorem convergesTo_add {s t : ℕ → ℝ} {a b : ℝ}
   rcases cs (ε / 2) ε2pos with ⟨Ns, hs⟩
   rcases ct (ε / 2) ε2pos with ⟨Nt, ht⟩
   use max Ns Nt
-  sorry
+  intro  n hn
+  have hns: n ≥ Ns := le_trans (le_max_left Ns Nt) hn
+  have hnt: n ≥ Nt := le_trans (le_max_right Ns Nt) hn
+  have hs' := hs n hns
+  have ht':= ht n hnt
+  · calc
+    |s n + t n - (a + b)| = |(s n - a) + (t n - b)| := by ring_nf
+    _ ≤ |(s n - a)| + |(t n - b)| := abs_add_le (s n - a) (t n - b)
+    _ < ε / 2 + ε / 2 := add_lt_add hs' ht'
+    _ = ε := by ring
 
 theorem convergesTo_mul_const {s : ℕ → ℝ} {a : ℝ} (c : ℝ) (cs : ConvergesTo s a) :
     ConvergesTo (fun n ↦ c * s n) (c * a) := by
@@ -100,4 +109,3 @@ def ConvergesTo' (s : α → ℝ) (a : ℝ) :=
   ∀ ε > 0, ∃ N, ∀ n ≥ N, |s n - a| < ε
 
 end
-
