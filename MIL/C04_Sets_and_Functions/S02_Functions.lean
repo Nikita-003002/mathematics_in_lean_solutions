@@ -45,51 +45,147 @@ example : f '' s ⊆ v ↔ s ⊆ f ⁻¹' v := by
     exact xs
 
 example (h : Injective f) : f ⁻¹' (f '' s) ⊆ s := by
-  sorry
+  intro x xs
+  rcases xs with ⟨x', x's, e⟩
+  have h': x' = x := by
+    apply h
+    exact e
+  rw[← h']
+  exact x's
 
 example : f '' (f ⁻¹' u) ⊆ u := by
-  sorry
+  intro x h
+  rcases h with ⟨y, hy, yx⟩
+  rw[← yx]
+  apply hy
 
 example (h : Surjective f) : u ⊆ f '' (f ⁻¹' u) := by
-  sorry
+  intro x hx
+  obtain ⟨y, hy⟩ := h x
+  use y
+  constructor
+  · apply hy.symm ▸ hx
+  exact hy
 
 example (h : s ⊆ t) : f '' s ⊆ f '' t := by
-  sorry
+  intro x hx
+  rcases hx with ⟨y, ys, fyx⟩
+  use y
+  constructor
+  apply h
+  exact ys
+  exact fyx
 
 example (h : u ⊆ v) : f ⁻¹' u ⊆ f ⁻¹' v := by
-  sorry
+  intro x hu
+  apply h
+  exact hu
 
 example : f ⁻¹' (u ∪ v) = f ⁻¹' u ∪ f ⁻¹' v := by
-  sorry
+  ext x
+  constructor
+  · intro h
+    exact h
+  · intro h
+    exact h
 
 example : f '' (s ∩ t) ⊆ f '' s ∩ f '' t := by
-  sorry
+  intro x h
+  rcases h with ⟨y, ⟨ys, yt⟩, fyx⟩
+  constructor
+  · exact ⟨y, ys, fyx⟩
+  · exact ⟨y, yt, fyx⟩
 
 example (h : Injective f) : f '' s ∩ f '' t ⊆ f '' (s ∩ t) := by
-  sorry
+  intro x ⟨hxs, hxt⟩
+  rcases hxs with ⟨a, ha, fax⟩
+  rcases hxt with ⟨b, hb, fbx⟩
+  have hab: b = a := by apply h; rw[fax, fbx]
+  subst hab
+  use b
+  constructor
+  · exact ⟨ha, hb⟩
+  · exact fax
 
 example : f '' s \ f '' t ⊆ f '' (s \ t) := by
-  sorry
+  intro x h
+  obtain ⟨x_in_s, x_not_in_t⟩ := h
+  rcases x_in_s with ⟨a, has, rfl⟩
+  use a
+  constructor
+  · constructor
+    .exact has
+    · intro h'
+      apply x_not_in_t
+      use a
+  · rfl
 
 example : f ⁻¹' u \ f ⁻¹' v ⊆ f ⁻¹' (u \ v) := by
-  sorry
+  intro x h
+  obtain ⟨hu, hv⟩ := h
+  constructor
+  · exact hu
+  · exact hv
 
 example : f '' s ∩ v = f '' (s ∩ f ⁻¹' v) := by
-  sorry
+  ext x
+  constructor
+  · intro h
+    rcases h with ⟨hs, xv⟩
+    rcases hs with ⟨y, ys, fyx⟩
+    use y
+    constructor
+    · constructor
+      exact ys
+      · apply fyx.symm ▸ xv
+    exact fyx
+  · intro h
+    rcases h with ⟨y, ⟨ ⟨ys, yfv⟩, fyx⟩⟩
+    constructor
+    use y
+    have h': x = f y := by rw[fyx]
+    rw[h']
+    exact yfv
 
 example : f '' (s ∩ f ⁻¹' u) ⊆ f '' s ∩ u := by
-  sorry
+  intro x h
+  rcases h with ⟨y, ⟨fy, yfu⟩, fyx⟩
+  constructor
+  · use y
+  rw[← fyx]
+  exact yfu
 
 example : s ∩ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∩ u) := by
-  sorry
+  intro x h
+  rcases h with ⟨xs, xfu⟩
+  constructor
+  · use x
+  exact xfu
 
 example : s ∪ f ⁻¹' u ⊆ f ⁻¹' (f '' s ∪ u) := by
-  sorry
+  intro x h
+  rcases h with (xs | xfu)
+  constructor
+  · use x
+  · right
+    exact xfu
 
 variable {I : Type*} (A : I → Set α) (B : I → Set β)
 
 example : (f '' ⋃ i, A i) = ⋃ i, f '' A i := by
-  sorry
+  ext x
+  constructor
+  simp only [Set.mem_image, Set.mem_iUnion]
+  · rintro ⟨y, ⟨i, hi⟩, fyx⟩
+    use i, y
+  · rintro ⟨sb, sb_range, xsb⟩
+    · rcases sb_range with ⟨i, rfl⟩
+      rcases xsb with ⟨a, ha, rfl⟩
+      use a
+      constructor
+      simp only [Set.mem_iUnion]
+      use i, ha
+      · rfl
 
 example : (f '' ⋂ i, A i) ⊆ ⋂ i, f '' A i := by
   sorry
