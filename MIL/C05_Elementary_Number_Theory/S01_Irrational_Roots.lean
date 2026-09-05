@@ -52,23 +52,57 @@ example (a b c : Nat) (h : a * b = a * c) (h' : a ≠ 0) : b = c :=
 example {m n : ℕ} (coprime_mn : m.Coprime n) : m ^ 2 ≠ 2 * n ^ 2 := by
   intro sqr_eq
   have : 2 ∣ m := by
-    sorry
+    apply even_of_even_sqr
+    rw[sqr_eq]
+    apply dvd_mul_right
   obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp this
   have : 2 * (2 * k ^ 2) = 2 * n ^ 2 := by
     rw [← sqr_eq, meq]
     ring
   have : 2 * k ^ 2 = n ^ 2 :=
-    sorry
+    (mul_right_inj' (by norm_num)).mp this
   have : 2 ∣ n := by
-    sorry
+    apply even_of_even_sqr
+    rw[← this]
+    apply dvd_mul_right
   have : 2 ∣ m.gcd n := by
-    sorry
+    apply Nat.dvd_gcd <;>
+    assumption
   have : 2 ∣ 1 := by
-    sorry
+    convert this
+    symm
+    apply coprime_mn
   norm_num at this
 
 example {m n p : ℕ} (coprime_mn : m.Coprime n) (prime_p : p.Prime) : m ^ 2 ≠ p * n ^ 2 := by
-  sorry
+  intro sq_eq
+  have : p ∣ m := by
+    apply Nat.Prime.dvd_of_dvd_pow prime_p
+    rw[sq_eq]
+    apply dvd_mul_right
+  obtain ⟨k, meq⟩ := dvd_iff_exists_eq_mul_left.mp this
+  have: p * (p * k ^ 2) = p * n ^ 2 := by
+    rw[← sq_eq, meq]
+    ring
+  have: p * k ^ 2 = n ^ 2 := by
+    apply (mul_right_inj' _).mp this
+    apply prime_p.ne_zero
+  have: p ∣ n := by
+    apply Nat.Prime.dvd_of_dvd_pow prime_p
+    rw[← this]
+    apply dvd_mul_right
+  have: p ∣ Nat.gcd m n := by
+    apply Nat.dvd_gcd <;>
+    assumption
+  have: p ∣ 1 := by
+    convert this
+    symm
+    exact coprime_mn
+  have: 2 ≤ 1 := by
+    apply prime_p.two_le.trans
+    exact Nat.le_of_dvd zero_lt_one this
+  norm_num at this
+
 #check Nat.primeFactorsList
 #check Nat.prime_of_mem_primeFactorsList
 #check Nat.prod_primeFactorsList
@@ -117,4 +151,3 @@ example {m n k r : ℕ} (nnz : n ≠ 0) (pow_eq : m ^ k = r * n ^ k) {p : ℕ} :
   sorry
 
 #check multiplicity
-
