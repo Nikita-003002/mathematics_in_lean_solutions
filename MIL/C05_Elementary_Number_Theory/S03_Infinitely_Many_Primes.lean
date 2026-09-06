@@ -14,12 +14,12 @@ theorem two_le {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
 
 example {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
   by_contra h
-  push_neg at h
+  push Not at h
   interval_cases m <;> contradiction
 
 example {m : ℕ} (h0 : m ≠ 0) (h1 : m ≠ 1) : 2 ≤ m := by
   by_contra h
-  push_neg at h
+  push Not at h
   revert h0 h1
   revert h m
   decide
@@ -29,7 +29,7 @@ theorem exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p
   · use n, np
   induction' n using Nat.strong_induction_on with n ih
   rw [Nat.prime_def_lt] at np
-  push_neg at np
+  push Not at np
   rcases np h with ⟨m, mltn, mdvdn, mne1⟩
   have : m ≠ 0 := by
     intro mz
@@ -45,18 +45,24 @@ theorem exists_prime_factor {n : Nat} (h : 2 ≤ n) : ∃ p : Nat, p.Prime ∧ p
 theorem primes_infinite : ∀ n, ∃ p > n, Nat.Prime p := by
   intro n
   have : 2 ≤ Nat.factorial n + 1 := by
-    sorry
+    apply Nat.succ_le_succ
+    apply Nat.succ_le_of_lt (Nat.factorial_pos _)
   rcases exists_prime_factor this with ⟨p, pp, pdvd⟩
   refine ⟨p, ?_, pp⟩
   show p > n
   by_contra ple
-  push_neg at ple
+  push Not at ple
   have : p ∣ Nat.factorial n := by
-    sorry
+    apply Nat.dvd_factorial
+    apply pp.pos
+    assumption
   have : p ∣ 1 := by
-    sorry
+    convert Nat.dvd_sub pdvd this
+    simp
   show False
-  sorry
+  have := Nat.le_of_dvd zero_lt_one this
+  linarith [pp.two_le]
+
 open Finset
 
 section
@@ -223,4 +229,3 @@ theorem primes_mod_4_eq_3_infinite : ∀ n, ∃ p > n, Nat.Prime p ∧ p % 4 = 3
   have : p = 3 := by
     sorry
   contradiction
-
