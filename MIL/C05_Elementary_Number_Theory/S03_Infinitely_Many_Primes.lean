@@ -95,9 +95,11 @@ section
 variable {α : Type*} [DecidableEq α] (r s t : Finset α)
 
 example : (r ∪ s) ∩ (r ∪ t) = r ∪ s ∩ t := by
-  sorry
+  exact Eq.symm (union_inter_distrib_left r s t)
 example : (r \ s) \ t = r \ (s ∪ t) := by
-  sorry
+  ext x
+  rw[mem_sdiff, mem_sdiff, mem_sdiff, mem_union]
+  tauto
 
 end
 
@@ -107,7 +109,7 @@ example (s : Finset ℕ) (n : ℕ) (h : n ∈ s) : n ∣ ∏ i ∈ s, i :=
 theorem _root_.Nat.Prime.eq_of_dvd_of_prime {p q : ℕ}
       (prime_p : Nat.Prime p) (prime_q : Nat.Prime q) (h : p ∣ q) :
     p = q := by
-  sorry
+  exact (Nat.prime_dvd_prime_iff_eq prime_p prime_q).mp h
 
 theorem mem_of_dvd_prod_primes {s : Finset ℕ} {p : ℕ} (prime_p : p.Prime) :
     (∀ n ∈ s, Nat.Prime n) → (p ∣ ∏ n ∈ s, n) → p ∈ s := by
@@ -117,29 +119,43 @@ theorem mem_of_dvd_prod_primes {s : Finset ℕ} {p : ℕ} (prime_p : p.Prime) :
     linarith [prime_p.two_le]
   simp [Finset.prod_insert ans, prime_p.dvd_mul] at h₀ h₁
   rw [mem_insert]
-  sorry
+  rcases h₁ with h | h
+  · left
+    apply Nat.Prime.eq_of_dvd_of_prime prime_p
+    exact h₀.1
+    exact h
+  · right
+    exact ih h₀.2 h
+
 example (s : Finset ℕ) (x : ℕ) : x ∈ s.filter Nat.Prime ↔ x ∈ s ∧ x.Prime :=
   mem_filter
 
 theorem primes_infinite' : ∀ s : Finset Nat, ∃ p, Nat.Prime p ∧ p ∉ s := by
   intro s
   by_contra h
-  push_neg at h
+  push Not at h
   set s' := s.filter Nat.Prime with s'_def
   have mem_s' : ∀ {n : ℕ}, n ∈ s' ↔ n.Prime := by
     intro n
     simp [s'_def]
     apply h
   have : 2 ≤ (∏ i ∈ s', i) + 1 := by
-    sorry
+    apply Nat.succ_le_succ
+    apply Nat.succ_le_of_lt
+    apply Finset.prod_pos
+    intro n hn
+    apply (mem_s'.mp hn).pos
   rcases exists_prime_factor this with ⟨p, pp, pdvd⟩
   have : p ∣ ∏ i ∈ s', i := by
-    sorry
+    apply dvd_prod_of_mem
+    rw[mem_s']
+    assumption
   have : p ∣ 1 := by
     convert Nat.dvd_sub pdvd this
     simp
   show False
-  sorry
+  have := Nat.le_of_dvd zero_lt_one this
+  linarith [pp.two_le]
 theorem bounded_of_ex_finset (Q : ℕ → Prop) :
     (∃ s : Finset ℕ, ∀ k, Q k → k ∈ s) → ∃ n, ∀ k, Q k → k < n := by
   rintro ⟨s, hs⟩
