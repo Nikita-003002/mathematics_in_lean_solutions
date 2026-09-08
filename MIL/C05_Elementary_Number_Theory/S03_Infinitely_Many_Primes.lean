@@ -192,7 +192,10 @@ theorem two_le_of_mod_4_eq_3 {n : ℕ} (h : n % 4 = 3) : 2 ≤ n := by
       norm_num at h
 
 theorem aux {m n : ℕ} (h₀ : m ∣ n) (h₁ : 2 ≤ m) (h₂ : m < n) : n / m ∣ n ∧ n / m < n := by
-  sorry
+  constructor
+  apply Nat.div_dvd_of_dvd h₀
+  apply Nat.div_lt_self (lt_of_le_of_lt zero_le h₂) h₁
+
 theorem exists_prime_factor_mod_4_eq_3 {n : Nat} (h : n % 4 = 3) :
     ∃ p : Nat, p.Prime ∧ p ∣ n ∧ p % 4 = 3 := by
   by_cases np : n.Prime
@@ -211,7 +214,11 @@ theorem exists_prime_factor_mod_4_eq_3 {n : Nat} (h : n % 4 = 3) :
     apply mod_4_eq_3_or_mod_4_eq_3
     rw [neq, h]
   rcases this with h1 | h1
-  . sorry
+  . by_cases mp : m.Prime
+    · use m
+    · rcases ih m mltn h1 mp with ⟨p, p_prime, pdvdm, p_rem_3⟩
+      use p
+      exact ⟨p_prime, pdvdm.trans mdvdn, p_rem_3⟩
   . sorry
 example (m n : ℕ) (s : Finset ℕ) (h : m ∈ erase s n) : m ≠ n ∧ m ∈ s := by
   rwa [mem_erase] at h
