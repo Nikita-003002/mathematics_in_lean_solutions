@@ -202,7 +202,7 @@ theorem exists_prime_factor_mod_4_eq_3 {n : Nat} (h : n % 4 = 3) :
   · use n
   induction' n using Nat.strong_induction_on with n ih
   rw [Nat.prime_def_lt] at np
-  push_neg at np
+  push Not at np
   rcases np (two_le_of_mod_4_eq_3 h) with ⟨m, mltn, mdvdn, mne1⟩
   have mge2 : 2 ≤ m := by
     apply two_le _ mne1
@@ -219,7 +219,13 @@ theorem exists_prime_factor_mod_4_eq_3 {n : Nat} (h : n % 4 = 3) :
     · rcases ih m mltn h1 mp with ⟨p, p_prime, pdvdm, p_rem_3⟩
       use p
       exact ⟨p_prime, pdvdm.trans mdvdn, p_rem_3⟩
-  . sorry
+  . obtain ⟨nmdvdn, nmltn⟩ := aux mdvdn mge2 mltn
+    by_cases nmp: (n / m).Prime
+    · use n / m
+    rcases ih (n / m) nmltn h1 nmp with ⟨p, pp, pdvdnm, p4eq⟩
+    use p
+    exact ⟨pp, pdvdnm.trans nmdvdn, p4eq⟩
+
 example (m n : ℕ) (s : Finset ℕ) (h : m ∈ erase s n) : m ≠ n ∧ m ∈ s := by
   rwa [mem_erase] at h
 
@@ -229,7 +235,7 @@ example (m n : ℕ) (s : Finset ℕ) (h : m ∈ erase s n) : m ≠ n ∧ m ∈ s
 
 theorem primes_mod_4_eq_3_infinite : ∀ n, ∃ p > n, Nat.Prime p ∧ p % 4 = 3 := by
   by_contra h
-  push_neg at h
+  push Not at h
   rcases h with ⟨n, hn⟩
   have : ∃ s : Finset Nat, ∀ p : ℕ, p.Prime ∧ p % 4 = 3 ↔ p ∈ s := by
     apply ex_finset_of_bounded
