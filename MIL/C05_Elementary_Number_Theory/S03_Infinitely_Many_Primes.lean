@@ -248,7 +248,8 @@ theorem primes_mod_4_eq_3_infinite : ∀ n, ∃ p > n, Nat.Prime p ∧ p % 4 = 3
     rw[add_comm, Nat.add_mul_mod_self_left]
   rcases exists_prime_factor_mod_4_eq_3 h₁ with ⟨p, pp, pdvd, p4eq⟩
   have ps : p ∈ s := by
-    sorry
+    rw[← hs]
+    exact ⟨pp, p4eq⟩
   have pne3 : p ≠ 3 := by
     sorry
   have : p ∣ 4 * ∏ i ∈ erase s 3, i := by
