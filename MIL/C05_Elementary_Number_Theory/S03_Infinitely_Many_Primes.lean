@@ -263,9 +263,14 @@ theorem primes_mod_4_eq_3_infinite : ∀ n, ∃ p > n, Nat.Prime p ∧ p % 4 = 3
       exact pdvd
     simp at this
   have : p ∣ 4 * ∏ i ∈ erase s 3, i := by
-    sorry
+    apply dvd_trans _ (dvd_mul_left _ _)
+    apply dvd_prod_of_mem
+    simp
+    constructor <;>
+    assumption
   have : p ∣ 3 := by
-    sorry
+    convert Nat.dvd_sub pdvd this
+    simp
   have : p = 3 := by
-    sorry
+    apply pp.eq_of_dvd_of_prime Nat.prime_three this
   contradiction
