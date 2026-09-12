@@ -251,7 +251,17 @@ theorem primes_mod_4_eq_3_infinite : ∀ n, ∃ p > n, Nat.Prime p ∧ p % 4 = 3
     rw[← hs]
     exact ⟨pp, p4eq⟩
   have pne3 : p ≠ 3 := by
-    sorry
+    intro peq
+    rw[peq, ← Nat.dvd_add_iff_left (dvd_refl 3)] at pdvd
+    rw[Nat.prime_three.dvd_mul] at pdvd
+    norm_num at pdvd
+    have: 3 ∈ s.erase 3 := by
+      apply mem_of_dvd_prod_primes Nat.prime_three
+      intro n
+      simp [← hs n]
+      tauto
+      exact pdvd
+    simp at this
   have : p ∣ 4 * ∏ i ∈ erase s 3, i := by
     sorry
   have : p ∣ 3 := by
